@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws-sam-aplication
+
+  Sample SAM Template for aws-sam-aplication
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 600
+    Environment:
+      Variables:
+        TABLE_NAME: books
+
+Resources:
+  BookTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: name
+        Type: String
+      TableName: books
+
+  DynamodbCrudFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dynamodb/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookTable
+      Events:
+        Graphql:
+          Type: Api
+          Properties:
+            Path: /graphql
+            Method: Any
